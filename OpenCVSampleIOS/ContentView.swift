@@ -6,16 +6,27 @@
 //
 
 import SwiftUI
+import opencv2
 
 struct ContentView: View {
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
+            Image(uiImage: UIImage(named: "image")!)
+                .resizable()
+                .frame(width: 200, height: 200)
+            Image(uiImage: convertColor(source: UIImage(named: "image")!))
+                .resizable()
+                .frame(width: 200, height: 200)
             Text("Hello, world!")
         }
         .padding()
+    }
+    
+    func convertColor(source srcImage: UIImage) -> UIImage {
+        let srcMat = Mat(uiImage: srcImage)
+        let dstMat = Mat()
+        Imgproc.cvtColor(src: srcMat, dst: dstMat, code: .COLOR_RGB2GRAY)
+        return dstMat.toUIImage()
     }
 }
 

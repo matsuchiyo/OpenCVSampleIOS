@@ -1,2 +1,6 @@
 
 .DS_Store
+
+
+# this exceeds GitHub's file size limit of 100.00 MB
+OpenCVSampleIOS/frameworks/opencv2.framework
