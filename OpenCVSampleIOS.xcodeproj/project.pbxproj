@@ -14,6 +14,8 @@
 		9C7750832AD7999D006916BE /* OpenCVSampleIOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7750822AD7999D006916BE /* OpenCVSampleIOSTests.swift */; };
 		9C77508D2AD7999D006916BE /* OpenCVSampleIOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C77508C2AD7999D006916BE /* OpenCVSampleIOSUITests.swift */; };
 		9C77508F2AD7999D006916BE /* OpenCVSampleIOSUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C77508E2AD7999D006916BE /* OpenCVSampleIOSUITestsLaunchTests.swift */; };
+		9C7750A52AD7F6E7006916BE /* opencv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7750A42AD7F6E7006916BE /* opencv2.xcframework */; platformFilter = ios; };
+		9C7750A82AD7F938006916BE /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7750A72AD7F92E006916BE /* libc++.tbd */; platformFilter = ios; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +47,8 @@
 		9C7750882AD7999D006916BE /* OpenCVSampleIOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenCVSampleIOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C77508C2AD7999D006916BE /* OpenCVSampleIOSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenCVSampleIOSUITests.swift; sourceTree = "<group>"; };
 		9C77508E2AD7999D006916BE /* OpenCVSampleIOSUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenCVSampleIOSUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		9C7750A42AD7F6E7006916BE /* opencv2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = opencv2.xcframework; sourceTree = "<group>"; };
+		9C7750A72AD7F92E006916BE /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS16.4.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +56,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C7750A82AD7F938006916BE /* libc++.tbd in Frameworks */,
+				9C7750A52AD7F6E7006916BE /* opencv2.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,6 +85,7 @@
 				9C7750812AD7999D006916BE /* OpenCVSampleIOSTests */,
 				9C77508B2AD7999D006916BE /* OpenCVSampleIOSUITests */,
 				9C77506E2AD7999B006916BE /* Products */,
+				9C7750A62AD7F92D006916BE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -95,6 +102,7 @@
 		9C77506F2AD7999B006916BE /* OpenCVSampleIOS */ = {
 			isa = PBXGroup;
 			children = (
+				9C7750A32AD7F6E7006916BE /* frameworks */,
 				9C7750702AD7999B006916BE /* OpenCVSampleIOSApp.swift */,
 				9C7750722AD7999B006916BE /* ContentView.swift */,
 				9C7750742AD7999C006916BE /* Assets.xcassets */,
@@ -127,6 +135,22 @@
 				9C77508E2AD7999D006916BE /* OpenCVSampleIOSUITestsLaunchTests.swift */,
 			);
 			path = OpenCVSampleIOSUITests;
+			sourceTree = "<group>";
+		};
+		9C7750A32AD7F6E7006916BE /* frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9C7750A42AD7F6E7006916BE /* opencv2.xcframework */,
+			);
+			path = frameworks;
+			sourceTree = "<group>";
+		};
+		9C7750A62AD7F92D006916BE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9C7750A72AD7F92E006916BE /* libc++.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
