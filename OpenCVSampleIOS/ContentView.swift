@@ -11,12 +11,17 @@ import opencv2
 struct ContentView: View {
     var body: some View {
         VStack {
-            Image(uiImage: UIImage(named: "image")!)
+//            Image(uiImage: UIImage(named: "image")!)
+//                .resizable()
+//                .frame(width: 200, height: 200)
+//            Image(uiImage: convertColor(source: UIImage(named: "image")!))
+//                .resizable()
+//                .frame(width: 200, height: 200)
+            Image(uiImage: RectangleDetector.detectRectangle(image:  UIImage(named: "receipt")!) ?? UIImage.actions)
                 .resizable()
-                .frame(width: 200, height: 200)
-            Image(uiImage: convertColor(source: UIImage(named: "image")!))
-                .resizable()
-                .frame(width: 200, height: 200)
+//                .frame(width: 200, height: 200)
+                .scaledToFit()
+                .frame(width: 360)
             Text("Hello, world!")
         }
         .padding()
