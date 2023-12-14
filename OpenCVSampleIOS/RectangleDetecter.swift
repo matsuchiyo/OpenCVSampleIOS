@@ -15,14 +15,46 @@ class RectangleDetector {
         let matDest = Mat()
         // グレースケール変換
         Imgproc.cvtColor(src: matSource, dst: matDest, code: .COLOR_BGR2GRAY)
+        // return matDest.toUIImage()
         // 2値化
-        // TODO: 不安
+        
+        /*
+        // https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html の Otsu's Binarizationを参考に、事前にガウシアンブラーをかけてみる。
+//        Imgproc.GaussianBlur(src: matDest, dst: matDest, ksize: Size2i(width: 5, height: 5), sigmaX: 5, sigmaY: 5)
+        
         let thresholdTypes: ThresholdTypes = ThresholdTypes(rawValue: ThresholdTypes.THRESH_BINARY.rawValue | ThresholdTypes.THRESH_OTSU.rawValue)!
+//        let thresholdTypes = ThresholdTypes.THRESH_BINARY
         Imgproc.threshold(src: matDest, dst: matDest, thresh: 0, maxval: 255, type: thresholdTypes)
+//        Imgproc.threshold(src: matDest, dst: matDest, thresh: 16, maxval: 255, type: thresholdTypes)
+        
+         */
+        ///*
+        // adaptive thresholdを使ってみる
+        Imgproc.adaptiveThreshold(src: matDest, dst: matDest, maxValue: 255, adaptiveMethod: AdaptiveThresholdTypes.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType: ThresholdTypes.THRESH_BINARY, blockSize: 11, C: 2)
+        // */
 //        return matDest.toUIImage() // 検証用
+        
+        // /*
+        // https://www.kaggle.com/code/dmitryyemelyanov/receipt-ocr-part-1-image-segmentation-by-opencv
+//        Imgproc.GaussianBlur(src: matDest, dst: matDest, ksize: Size2i(width: 5, height: 5), sigmaX: 0)
+        Imgproc.GaussianBlur(src: matDest, dst: matDest, ksize: Size2i(width: 51, height: 51), sigmaX: 25)
+//        return matDest.toUIImage()
+        let kernelForDilation = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 9, height: 9))
+        Imgproc.dilate(src: matDest, dst: matDest, kernel: kernelForDilation)
+        
+        
+        // */
+        
+        
+        let thresholdTypes = ThresholdTypes.THRESH_BINARY
+        Imgproc.threshold(src: matDest, dst: matDest, thresh: 192, maxval: 255, type: thresholdTypes)
+//        return matDest.toUIImage()
+        
+        
         // Cannyアルゴリズムを使ったエッジ検出
         let matCanny = Mat()
         Imgproc.Canny(image: matDest, edges: matCanny, threshold1: 75, threshold2: 200)
+//        Imgproc.Canny(image: matDest, edges: matCanny, threshold1: 100, threshold2: 200, apertureSize: 3)
 //        return matCanny.toUIImage() // 検証用
         // 膨張
         let matKernel = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 9, height: 9))
@@ -52,6 +84,7 @@ class RectangleDetector {
             print("***** Imgproc.contourArea(contour: contour1Mat, oriented: false): \(Imgproc.contourArea(contour: contour1Mat, oriented: false))")
         }
         
+        // 検証のため、検出した部分を四角で囲む。
         let matCanny3Channel = Mat()
         Imgproc.cvtColor(src: matCanny, dst: matCanny3Channel, code: .COLOR_GRAY2RGB)
         for i in 0..<min(10, vctContours.count) {
@@ -131,7 +164,7 @@ class RectangleDetector {
     
     
     private static func floatPointsToMat(points: [Point2f]) -> Mat {
-        let CV_32F_C1 = Int32(5) // 32ビット符号付き整数、1チャネル
+        let CV_32F_C1 = Int32(5) // 32ビット符号付き浮動小数点、1チャネル
         let mat = Mat(rows: Int32(points.count), cols: 2, type: CV_32F_C1)
         for i in 0..<points.count {
             mat.at(row: Int32(i), col: Int32(0)).v = points[i].x

@@ -17,6 +17,7 @@
 		9C7750A52AD7F6E7006916BE /* opencv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7750A42AD7F6E7006916BE /* opencv2.xcframework */; platformFilter = ios; };
 		9C7750A82AD7F938006916BE /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7750A72AD7F92E006916BE /* libc++.tbd */; platformFilter = ios; };
 		9CBDCD9A2AD8E5EB00965027 /* RectangleDetecter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBDCD992AD8E5EB00965027 /* RectangleDetecter.swift */; };
+		9CE34FB92B2A99AC00F71E04 /* RectangleDetector2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CE34FB82B2A99AC00F71E04 /* RectangleDetector2.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		9C7750A42AD7F6E7006916BE /* opencv2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = opencv2.xcframework; sourceTree = "<group>"; };
 		9C7750A72AD7F92E006916BE /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS16.4.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
 		9CBDCD992AD8E5EB00965027 /* RectangleDetecter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangleDetecter.swift; sourceTree = "<group>"; };
+		9CE34FB82B2A99AC00F71E04 /* RectangleDetector2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangleDetector2.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 				9C7750762AD7999C006916BE /* OpenCVSampleIOS.entitlements */,
 				9C7750772AD7999C006916BE /* Preview Content */,
 				9CBDCD992AD8E5EB00965027 /* RectangleDetecter.swift */,
+				9CE34FB82B2A99AC00F71E04 /* RectangleDetector2.swift */,
 			);
 			path = OpenCVSampleIOS;
 			sourceTree = "<group>";
@@ -286,6 +289,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CE34FB92B2A99AC00F71E04 /* RectangleDetector2.swift in Sources */,
 				9CBDCD9A2AD8E5EB00965027 /* RectangleDetecter.swift in Sources */,
 				9C7750732AD7999B006916BE /* ContentView.swift in Sources */,
 				9C7750712AD7999B006916BE /* OpenCVSampleIOSApp.swift in Sources */,

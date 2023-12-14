@@ -17,7 +17,7 @@ struct ContentView: View {
 //            Image(uiImage: convertColor(source: UIImage(named: "image")!))
 //                .resizable()
 //                .frame(width: 200, height: 200)
-            Image(uiImage: RectangleDetector.detectRectangle(image:  UIImage(named: "receipt")!) ?? UIImage.actions)
+            Image(uiImage: RectangleDetector2.detectRectangle(image:  UIImage(named: "receipt")!) ?? UIImage.actions)
                 .resizable()
 //                .frame(width: 200, height: 200)
                 .scaledToFit()
