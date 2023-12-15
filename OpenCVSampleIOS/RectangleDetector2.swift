@@ -12,9 +12,9 @@ import opencv2
 
 class RectangleDetector2 {
     static func detectRectangle(image: UIImage) -> UIImage? {
-        let imageMat = Mat(uiImage: image)
-        let original = Mat()
-        imageMat.copy(to: original)
+        let original = Mat(uiImage: image)
+        let imageMat = Mat()
+        original.copy(to: imageMat)
         
         let resizeRatio = 500.0 / Double(imageMat.height())
         resize(mat: imageMat, resizeRatio: resizeRatio)
@@ -28,7 +28,6 @@ class RectangleDetector2 {
         
         let edgesMat = Mat()
         Imgproc.Canny(image: imageMat, edges: edgesMat, threshold1: 100, threshold2: 200, apertureSize: 3)
-//        return edgesMat.toUIImage()
         
         let contours: NSMutableArray = []
         let hierarchy = Mat()
@@ -37,80 +36,18 @@ class RectangleDetector2 {
         let contourArray = contours.copy() as! [[Point2i]]
         
         // ↓検証用。輪郭の表示。
-        /*
-        let imageWithContours = Mat()
-        original.copy(to: imageWithContours)
-        let resizedContours = contourArray.map { contour in
-            return contour.map { point in
-                return Point2i(
-                    x: Int32(Double(point.x) * (1.0 / resizeRatio)),
-                    y: Int32(Double(point.y) * (1.0 / resizeRatio))
-                )
-            }
-        }
-        Imgproc.drawContours(
-            image: imageWithContours,
-//            contours: contours.copy() as! [[Point2i]],
-            contours: resizedContours,
-            contourIdx: -1,
-            color: Scalar(0, 255, 0, 255),
-            thickness: 24
-        )
-        return imageWithContours.toUIImage()
-         */
+//        return imageWithContours(image: original, contours: contourArray, contourScale: 1.0 / resizeRatio)
         
-        let sortedContourArray = contourArray.sorted(by: { contour1, contour2 in
-            return contourArea(contour1) > contourArea(contour2)
-        })
+        let sortedContourArray = contourArray.sorted(by: { contourArea($0) > contourArea($1) })
         let largestContours = sortedContourArray.prefix(10)
         
-        // ↓検証用。エリアが最大の輪郭の表示。
-        /*
-        let imageWithContours = Mat()
-        original.copy(to: imageWithContours)
-        let largestContour = largestContours[0]
-        let resizedLargestContour = largestContour.map { point in
-            let resizeRatio2 = 1.0 / resizeRatio
-            return Point2i(
-                x: Int32(Double(point.x) * resizeRatio2),
-                y: Int32(Double(point.y) * resizeRatio2)
-            )
-        }
-        Imgproc.drawContours(
-            image: imageWithContours,
-            contours: [resizedLargestContour],
-            contourIdx: -1,
-            color: Scalar(0, 255, 0, 255),
-            thickness: 24
-        )
-        return imageWithContours.toUIImage()
-         */
         guard let receiptContour: [Point2i] = getReceiptContour(contours: Array(largestContours)) else {
             print("***** receiptContour is nil")
             return nil
         }
         
-        // 検証
-        /*
-        let imageWithContours = Mat()
-        original.copy(to: imageWithContours)
-        let resizeRatio2 = 1.0 / resizeRatio
-        let resizedContour = receiptContour.map { (point: Point2i) -> Point2i in
-            let newX = Int32(Double(point.x) * resizeRatio2)
-            let newY = Int32(Double(point.y) * resizeRatio2)
-            return Point2i(x: newX, y: newY)
-        }
-        Imgproc.drawContours(
-            image: imageWithContours,
-            contours: [resizedContour],
-            contourIdx: -1,
-            color: Scalar(0, 255, 0, 255),
-            thickness: 24
-        )
-        return imageWithContours.toUIImage()
-         */
-        
-        let receiptRectInOriginal = contourToRect(contours: receiptContour, multiplier: 1.0 / resizeRatio)
+        let receiptRect = contourToRect(contours: receiptContour)
+        let receiptRectInOriginal = receiptRect.map { multiply(point: $0, multiplier: 1.0 / resizeRatio) }
         let transformedMat = warpPerspective(imageMat: original, rect: receiptRectInOriginal)
         
         let grayScaledMat = Mat()
@@ -180,7 +117,7 @@ class RectangleDetector2 {
         }
     }
     
-    private static func contourToRect(contours: [Point2i], multiplier: Double = 1.0) -> [Point2i] {
+    private static func contourToRect(contours: [Point2i]) -> [Point2i] {
         let xySumPerPointList: [Int32] = contours.map { $0.x + $0.y }
         let maxXySumPerPointList = xySumPerPointList.max()!
         let maxIndexXySumPerPointList: Int = xySumPerPointList.firstIndex(of: maxXySumPerPointList)!
@@ -194,10 +131,10 @@ class RectangleDetector2 {
         let minIndexYxDiffPerPointList = yxDiffPerPointList.firstIndex(of: minYxDiffPerPointList)!
         
         return [
-            multiply(point: contours[minIndexXySumPerPointList], multiplier: multiplier),
-            multiply(point: contours[minIndexYxDiffPerPointList], multiplier: multiplier),
-            multiply(point: contours[maxIndexXySumPerPointList], multiplier: multiplier),
-            multiply(point: contours[maxIndexYxDiffPerPointList], multiplier: multiplier),
+            contours[minIndexXySumPerPointList],
+            contours[minIndexYxDiffPerPointList],
+            contours[maxIndexXySumPerPointList],
+            contours[maxIndexYxDiffPerPointList],
         ]
     }
     
@@ -246,5 +183,26 @@ class RectangleDetector2 {
     
     private static func distance(_ p1: Point2i, _ p2: Point2i) -> Int {
         return Int(sqrt(pow(Double(p1.x - p2.x), 2.0)) + sqrt(pow(Double(p1.y - p2.y), 2.0)))
+    }
+    
+    private static func imageWithContours(image: Mat, contours: [[Point2i]], contourScale: Double = 1.0) -> UIImage {
+        let imageWithContours = Mat()
+        image.copy(to: imageWithContours)
+        let resizedContours = contours.map { contour in
+            return contour.map { point in
+                return Point2i(
+                    x: Int32(Double(point.x) * contourScale),
+                    y: Int32(Double(point.y) * contourScale)
+                )
+            }
+        }
+        Imgproc.drawContours(
+            image: imageWithContours,
+            contours: resizedContours,
+            contourIdx: -1,
+            color: Scalar(0, 255, 0, 255),
+            thickness: 24
+        )
+        return imageWithContours.toUIImage()
     }
 }
