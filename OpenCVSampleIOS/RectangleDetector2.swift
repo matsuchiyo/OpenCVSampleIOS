@@ -26,6 +26,9 @@ class RectangleDetector2 {
         let kernelForDilation = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 9, height: 9))
         Imgproc.dilate(src: imageMat, dst: imageMat, kernel: kernelForDilation)
         
+        // 手で持った画像のため。
+        // Imgproc.threshold(src: imageMat, dst: imageMat, thresh: 144, maxval: 255, type: .THRESH_BINARY)
+        
         let edgesMat = Mat()
         Imgproc.Canny(image: imageMat, edges: edgesMat, threshold1: 100, threshold2: 200, apertureSize: 3)
         
@@ -34,14 +37,15 @@ class RectangleDetector2 {
         Imgproc.findContours(image: edgesMat, contours: contours, hierarchy: hierarchy, mode: .RETR_TREE, method: .CHAIN_APPROX_SIMPLE)
         
         let contourArray = contours.copy() as! [[Point2i]]
+        print("***** contourArray.couunt: \(contourArray.count)")
         
         // ↓検証用。輪郭の表示。
 //        return imageWithContours(image: original, contours: contourArray, contourScale: 1.0 / resizeRatio)
         
         let sortedContourArray = contourArray.sorted(by: { contourArea($0) > contourArea($1) })
-        let largestContours = sortedContourArray.prefix(10)
+        let largestContours: [[Point2i]] = Array(sortedContourArray.prefix(10))
         
-        guard let receiptContour: [Point2i] = getReceiptContour(contours: Array(largestContours)) else {
+        guard let receiptContour: [Point2i] = getReceiptContour(contours: largestContours) else {
             print("***** receiptContour is nil")
             return nil
         }
@@ -90,12 +94,13 @@ class RectangleDetector2 {
         return Imgproc.contourArea(contour: contourMat, oriented: false)
     }
     
-    private static func approximateContour(contour: [Point2i]) -> [Point2i] {
+    private static func approximateContour(contour: [Point2i]) -> [Point2f] {
         let contourInPoint2f = point2isToPoint2fs(contour)
         let perimeterLength = Imgproc.arcLength(curve: contourInPoint2f, closed: true)
         let approxContour = NSMutableArray()
         Imgproc.approxPolyDP(curve: contourInPoint2f, approxCurve: approxContour, epsilon: 0.032 * perimeterLength, closed: true)
-        return approxContour as! [Point2i]
+        print("***** approximateContour: \(approxContour)")
+        return approxContour as! [Point2f]
     }
     
     private static func point2iToPoint2f(_ point2i: Point2i) -> Point2f {
