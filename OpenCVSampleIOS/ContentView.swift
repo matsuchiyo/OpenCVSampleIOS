@@ -10,21 +10,22 @@ import opencv2
 
 struct ContentView: View {
     var body: some View {
+        /*
         VStack {
-//            Image(uiImage: UIImage(named: "image")!)
-//                .resizable()
-//                .frame(width: 200, height: 200)
-//            Image(uiImage: convertColor(source: UIImage(named: "image")!))
-//                .resizable()
-//                .frame(width: 200, height: 200)
             Image(uiImage: RectangleDetector2.detectRectangle(image:  UIImage(named: "receipt")!) ?? UIImage.actions)
                 .resizable()
-//                .frame(width: 200, height: 200)
                 .scaledToFit()
                 .frame(width: 360)
             Text("Hello, world!")
         }
         .padding()
+         */
+        List(RectangleDetector2.detectRectangleAndGetImages(image: UIImage(named: "receipt_with_white_background")!), id: \.self) { item in
+            Image(uiImage: item)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 360)
+        }
     }
     
     func convertColor(source srcImage: UIImage) -> UIImage {

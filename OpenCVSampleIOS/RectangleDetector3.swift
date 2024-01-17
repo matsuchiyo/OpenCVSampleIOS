@@ -1,66 +1,14 @@
 //
-//  RectangleDetector2.swift
+//  RectangleDetector3.swift
 //  OpenCVSampleIOS
 //
-//  Created by 松島勇貴 on 2023/12/14.
+//  Created by 松島勇貴 on 2024/01/17.
 //
 
 import Foundation
 import opencv2
 
-// https://www.kaggle.com/code/dmitryyemelyanov/receipt-ocr-part-1-image-segmentation-by-opencv
-
-class RectangleDetector2 {
-    static func detectRectangle(image: UIImage) -> UIImage? {
-        let original = Mat(uiImage: image)
-        let imageMat = Mat()
-        original.copy(to: imageMat)
-        
-        let resizeRatio = 500.0 / Double(imageMat.height())
-        resize(mat: imageMat, resizeRatio: resizeRatio)
-        
-        Imgproc.cvtColor(src: imageMat, dst: imageMat, code: .COLOR_BGR2GRAY)
-        
-        Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 5, height: 5), sigmaX: 0) // ノイズの除去
-        
-        let kernelForDilation = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 9, height: 9))
-        Imgproc.dilate(src: imageMat, dst: imageMat, kernel: kernelForDilation)
-        
-        // 手で持った画像のため。
-        // Imgproc.threshold(src: imageMat, dst: imageMat, thresh: 144, maxval: 255, type: .THRESH_BINARY)
-        
-        let edgesMat = Mat()
-        Imgproc.Canny(image: imageMat, edges: edgesMat, threshold1: 100, threshold2: 200, apertureSize: 3)
-        
-        let contours: NSMutableArray = []
-        let hierarchy = Mat()
-        Imgproc.findContours(image: edgesMat, contours: contours, hierarchy: hierarchy, mode: .RETR_TREE, method: .CHAIN_APPROX_SIMPLE)
-        
-        let contourArray = contours.copy() as! [[Point2i]]
-        print("***** contourArray.couunt: \(contourArray.count)")
-        
-        // ↓検証用。輪郭の表示。
-//        return imageWithContours(image: original, contours: contourArray, contourScale: 1.0 / resizeRatio)
-        
-        let sortedContourArray = contourArray.sorted(by: { contourArea($0) > contourArea($1) })
-        let largestContours: [[Point2i]] = Array(sortedContourArray.prefix(10))
-        
-        guard let receiptContour: [Point2i] = getReceiptContour(contours: largestContours) else {
-            print("***** receiptContour is nil")
-            return nil
-        }
-        
-        let receiptRect = contourToRect(contours: receiptContour)
-        let receiptRectInOriginal = receiptRect.map { multiply(point: $0, multiplier: 1.0 / resizeRatio) }
-        let transformedMat = warpPerspective(imageMat: original, rect: receiptRectInOriginal)
-        
-        let grayScaledMat = Mat()
-        Imgproc.cvtColor(src: transformedMat, dst: grayScaledMat, code: .COLOR_BGR2GRAY)
-        Imgproc.adaptiveThreshold(src: grayScaledMat, dst: grayScaledMat, maxValue: 255, adaptiveMethod: AdaptiveThresholdTypes.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType: ThresholdTypes.THRESH_BINARY, blockSize: 21, C: 5)
-        
-        return grayScaledMat.toUIImage()
-    }
-    
+class RectangleDetector3 {
     static func detectRectangleAndGetImages(image: UIImage) -> [UIImage] {
         
         var result: [UIImage] = []
@@ -80,31 +28,41 @@ class RectangleDetector2 {
         
         Imgproc.cvtColor(src: imageMat, dst: imageMat, code: .COLOR_BGR2GRAY)
         
-        Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 5, height: 5), sigmaX: 0) // ノイズの除去
+//        Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 5, height: 5), sigmaX: 0) // ノイズの除去
+        Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 15, height: 15), sigmaX: 0) // ノイズの除去
         result.append({
             let mat = Mat()
             imageMat.copy(to: mat)
             return mat.toUIImage()
         }())
         
-        let kernelForDilation = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 9, height: 9))
-        Imgproc.dilate(src: imageMat, dst: imageMat, kernel: kernelForDilation)
+        // 影 削除
+        Imgproc.adaptiveThreshold(src: imageMat, dst: imageMat, maxValue: 255, adaptiveMethod: .ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType: .THRESH_BINARY, blockSize: 11, C: 2)
+        
         result.append({
             let mat = Mat()
             imageMat.copy(to: mat)
             return mat.toUIImage()
         }())
         
-        let edgesMat = Mat()
-        Imgproc.Canny(image: imageMat, edges: edgesMat, threshold1: 100, threshold2: 200, apertureSize: 3)
-        result.append(edgesMat.toUIImage())
+        
+        let kernelForErosion = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 15, height: 15))
+        Imgproc.erode(src: imageMat, dst: imageMat, kernel: kernelForErosion)
+        
+        result.append({
+            let mat = Mat()
+            imageMat.copy(to: mat)
+            return mat.toUIImage()
+        }())
+        
+        Core.bitwise_not(src: imageMat, dst: imageMat)
         
         let contours: NSMutableArray = []
         let hierarchy = Mat()
-        Imgproc.findContours(image: edgesMat, contours: contours, hierarchy: hierarchy, mode: .RETR_TREE, method: .CHAIN_APPROX_SIMPLE)
+        Imgproc.findContours(image: imageMat, contours: contours, hierarchy: hierarchy, mode: .RETR_TREE, method: .CHAIN_APPROX_SIMPLE)
         
         let contourArray = contours.copy() as! [[Point2i]]
-        print("***** contourArray.count: \(contourArray.count)")
+        print("***** contourArray.couunt: \(contourArray.count)")
         
         let sortedContourArray = contourArray.sorted(by: { contourArea($0) > contourArea($1) })
         let largestContours: [[Point2i]] = Array(sortedContourArray.prefix(10))
@@ -274,14 +232,12 @@ class RectangleDetector2 {
                 image: imageWithContours,
                 contours: [resizedContour],
                 contourIdx: -1,
-    //            color: Scalar(0, 255, 0, 255),
                 color: Scalar(
                     Double.random(in: 0...255),
                     Double.random(in: 0...255),
                     Double.random(in: 0...255),
                     255
                 ),
-    //            thickness: 24
                 thickness: 12
             )
         }
