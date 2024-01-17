@@ -20,7 +20,7 @@ struct ContentView: View {
         }
         .padding()
          */
-        List(RectangleDetector2.detectRectangleAndGetImages(image: UIImage(named: "receipt_with_white_background")!), id: \.self) { item in
+        List(RectangleDetector3.detectRectangleAndGetImages(image: UIImage(named: "receipt_with_white_background")!), id: \.self) { item in
             Image(uiImage: item)
                 .resizable()
                 .scaledToFit()

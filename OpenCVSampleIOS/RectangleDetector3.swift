@@ -29,7 +29,7 @@ class RectangleDetector3 {
         Imgproc.cvtColor(src: imageMat, dst: imageMat, code: .COLOR_BGR2GRAY)
         
 //        Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 5, height: 5), sigmaX: 0) // ノイズの除去
-        Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 15, height: 15), sigmaX: 0) // ノイズの除去
+        Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 31, height: 31), sigmaX: 0) // ノイズの除去。かつ文字を残す(存在するのがわかる程度)。
         result.append({
             let mat = Mat()
             imageMat.copy(to: mat)
@@ -46,7 +46,7 @@ class RectangleDetector3 {
         }())
         
         
-        let kernelForErosion = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 15, height: 15))
+        let kernelForErosion = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 61, height: 61))
         Imgproc.erode(src: imageMat, dst: imageMat, kernel: kernelForErosion)
         
         result.append({
@@ -68,8 +68,20 @@ class RectangleDetector3 {
         let largestContours: [[Point2i]] = Array(sortedContourArray.prefix(10))
         
         result.append(imageWithContours(image: original, contours: largestContours, contourScale: 1.0 / resizeRatio))
+    
+        let convexHullAppliedLargestContours = largestContours.map {
+            let indicesOfPointsWhichComposeHull = IntVector()
+            Imgproc.convexHull(points: $0, hull: indicesOfPointsWhichComposeHull)
+            var convexHullAppliedLargestContours: [Point2i] = []
+            for i in 0..<indicesOfPointsWhichComposeHull.length {
+                convexHullAppliedLargestContours.append($0[Int(indicesOfPointsWhichComposeHull[i])])
+            }
+            return convexHullAppliedLargestContours
+        }
         
-        guard let receiptContour: [Point2i] = getReceiptContour(contours: largestContours) else {
+        result.append(imageWithContours(image: original, contours: convexHullAppliedLargestContours, contourScale: 1.0 / resizeRatio))
+        
+        guard let receiptContour: [Point2i] = getReceiptContour(contours: convexHullAppliedLargestContours) else {
             print("***** receiptContour is nil")
             return result
         }
