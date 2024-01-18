@@ -111,7 +111,19 @@ class RectangleDetector2 {
         
         result.append(imageWithContours(image: original, contours: largestContours, contourScale: 1.0 / resizeRatio))
         
-        guard let receiptContour: [Point2i] = getReceiptContour(contours: largestContours) else {
+        let convexHullAppliedLargestContours = largestContours.map {
+            let indicesOfPointsWhichComposeHull = IntVector()
+            Imgproc.convexHull(points: $0, hull: indicesOfPointsWhichComposeHull)
+            var convexHullAppliedLargestContours: [Point2i] = []
+            for i in 0..<indicesOfPointsWhichComposeHull.length {
+                convexHullAppliedLargestContours.append($0[Int(indicesOfPointsWhichComposeHull[i])])
+            }
+            return convexHullAppliedLargestContours
+        }
+        
+        result.append(imageWithContours(image: original, contours: convexHullAppliedLargestContours, contourScale: 1.0 / resizeRatio))
+        
+        guard let receiptContour: [Point2i] = getReceiptContour(contours: convexHullAppliedLargestContours) else {
             print("***** receiptContour is nil")
             return result
         }
