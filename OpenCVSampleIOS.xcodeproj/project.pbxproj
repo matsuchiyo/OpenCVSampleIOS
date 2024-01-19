@@ -18,7 +18,6 @@
 		9C7750A82AD7F938006916BE /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7750A72AD7F92E006916BE /* libc++.tbd */; platformFilter = ios; };
 		9CA06D582B577C7D00F1551F /* RectangleDetector3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA06D572B577C7D00F1551F /* RectangleDetector3.swift */; };
 		9CA06D5A2B5A01E500F1551F /* ReceiptDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA06D592B5A01E400F1551F /* ReceiptDetector.swift */; };
-		9CA06D5C2B5A19B600F1551F /* OpenCVUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA06D5B2B5A19B600F1551F /* OpenCVUtils.swift */; };
 		9CBDCD9A2AD8E5EB00965027 /* RectangleDetecter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBDCD992AD8E5EB00965027 /* RectangleDetecter.swift */; };
 		9CE34FB92B2A99AC00F71E04 /* RectangleDetector2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CE34FB82B2A99AC00F71E04 /* RectangleDetector2.swift */; };
 /* End PBXBuildFile section */
@@ -56,7 +55,6 @@
 		9C7750A72AD7F92E006916BE /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS16.4.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
 		9CA06D572B577C7D00F1551F /* RectangleDetector3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangleDetector3.swift; sourceTree = "<group>"; };
 		9CA06D592B5A01E400F1551F /* ReceiptDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptDetector.swift; sourceTree = "<group>"; };
-		9CA06D5B2B5A19B600F1551F /* OpenCVUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenCVUtils.swift; sourceTree = "<group>"; };
 		9CBDCD992AD8E5EB00965027 /* RectangleDetecter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangleDetecter.swift; sourceTree = "<group>"; };
 		9CE34FB82B2A99AC00F71E04 /* RectangleDetector2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangleDetector2.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -122,7 +120,6 @@
 				9CE34FB82B2A99AC00F71E04 /* RectangleDetector2.swift */,
 				9CA06D572B577C7D00F1551F /* RectangleDetector3.swift */,
 				9CA06D592B5A01E400F1551F /* ReceiptDetector.swift */,
-				9CA06D5B2B5A19B600F1551F /* OpenCVUtils.swift */,
 			);
 			path = OpenCVSampleIOS;
 			sourceTree = "<group>";
@@ -304,7 +301,6 @@
 				9C7750712AD7999B006916BE /* OpenCVSampleIOSApp.swift in Sources */,
 				9CA06D5A2B5A01E500F1551F /* ReceiptDetector.swift in Sources */,
 				9CA06D582B577C7D00F1551F /* RectangleDetector3.swift in Sources */,
-				9CA06D5C2B5A19B600F1551F /* OpenCVUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
