@@ -62,6 +62,19 @@ class ReceiptDetector {
             }
         }
         
+        let resultByReceiptEdgesConvexHull = ReceiptContourDetectorByReceiptEdges.detect(image: image, convexHull: false, returnProcessingImages: returnProcessingImages)
+        if returnProcessingImages { processingImages.append(contentsOf: resultByReceiptEdgesConvexHull.processingImages) }
+        print("***** contour1 exists: \(resultByReceiptEdgesConvexHull.contour != nil)")
+        if let contour = resultByReceiptEdgesConvexHull.contour {
+            let contourArea = OpenCVUtils.contourArea(contour)
+            print("***** contourArea1: \(contourArea)")
+            if contourArea > contourAreaThreshold {
+                let extractedImage = OpenCVUtils.extractImageByContour(image: image, receiptContour: contour)
+                if returnProcessingImages { processingImages.append(extractedImage) }
+                return ReceiptDetectResult(result: extractedImage, processingImages: processingImages)
+            }
+        }
+        
         return ReceiptDetectResult(result: nil, processingImages: processingImages)
     }
 }
