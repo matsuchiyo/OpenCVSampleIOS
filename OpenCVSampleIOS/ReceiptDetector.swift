@@ -137,7 +137,7 @@ class ReceiptContourDetectorByContent {
         
         Imgproc.cvtColor(src: imageMat, dst: imageMat, code: .COLOR_BGR2GRAY)
         
-        Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 31, height: 31), sigmaX: 0) // 可能な限りノイズを除去。かつ文字を残す(存在するのがわかる程度)。
+        Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 25, height: 25), sigmaX: 0) // 可能な限りノイズを除去。かつ文字を残す(存在するのがわかる程度)。
         if returnProcessingImages { processingImages.append(imageMat.toUIImage()) }
         
         // 影 削除
