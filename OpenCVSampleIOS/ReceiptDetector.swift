@@ -1,27 +1,27 @@
 //
 //  ReceiptDetector.swift
-//  OpenCVSampleIOS
+//  Runner
 //
-//  Created by 松島勇貴 on 2024/01/19.
+//  Created by 松島勇貴 on 2024/01/22.
 //
 
 import Foundation
 import opencv2
 
 struct ReceiptDetectResult {
-    let result: UIImage?
-    let processingImages: [UIImage]
+    let processedImage: UIImage?
+    let imagesInProcess: [UIImage]
 }
 
 struct ContourDetectResult {
     let contour: [Point2i]?
-    let processingImages: [UIImage]
+    let imagesInProcess: [UIImage]
 }
 
 class ReceiptDetector {
-    static func detect(image: UIImage, returnProcessingImages: Bool) -> ReceiptDetectResult {
-        var processingImages: [UIImage] = []
-        if returnProcessingImages { processingImages.append(image) }
+    static func detect(image: UIImage, returnImagesInProcess: Bool) -> ReceiptDetectResult {
+        var imagesInProcess: [UIImage] = []
+        if returnImagesInProcess { imagesInProcess.append(image) }
         
         let width = Int32(image.size.width)
         let height = Int32(image.size.height)
@@ -36,52 +36,52 @@ class ReceiptDetector {
         print("***** areaOfContourThatFillsImage: \(areaOfContourThatFillsImage)")
         let contourAreaThreshold = areaOfContourThatFillsImage / 10
         
-        let resultByReceiptEdges = ReceiptContourDetectorByReceiptEdges.detect(image: image, convexHull: false, returnProcessingImages: returnProcessingImages)
-        if returnProcessingImages { processingImages.append(contentsOf: resultByReceiptEdges.processingImages) }
+        let resultByReceiptEdges = ReceiptContourDetectorByReceiptEdges.detect(image: image, convexHull: false, returnImagesInProcess: returnImagesInProcess)
+        if returnImagesInProcess { imagesInProcess.append(contentsOf: resultByReceiptEdges.imagesInProcess) }
         print("***** contour1 exists: \(resultByReceiptEdges.contour != nil)")
         if let contour = resultByReceiptEdges.contour {
             let contourArea = OpenCVUtils.contourArea(contour)
             print("***** contourArea1: \(contourArea)")
             if contourArea > contourAreaThreshold {
                 let extractedImage = OpenCVUtils.extractImageByContour(image: image, receiptContour: contour)
-                if returnProcessingImages { processingImages.append(extractedImage) }
-                return ReceiptDetectResult(result: extractedImage, processingImages: processingImages)
+                if returnImagesInProcess { imagesInProcess.append(extractedImage) }
+                return ReceiptDetectResult(processedImage: extractedImage, imagesInProcess: imagesInProcess)
             }
         }
         
-        let resultByReceiptContent = ReceiptContourDetectorByContent.detect(image: image, returnProcessingImages: returnProcessingImages)
-        if returnProcessingImages { processingImages.append(contentsOf: resultByReceiptContent.processingImages) }
+        let resultByReceiptContent = ReceiptContourDetectorByContent.detect(image: image, returnImagesInProcess: returnImagesInProcess)
+        if returnImagesInProcess { imagesInProcess.append(contentsOf: resultByReceiptContent.imagesInProcess) }
         print("***** contour2 exists: \(resultByReceiptContent.contour != nil)")
         if let contour = resultByReceiptContent.contour {
             let contourArea = OpenCVUtils.contourArea(contour)
             print("***** contourArea2: \(contourArea)")
             if contourArea > contourAreaThreshold {
                 let extractedImage = OpenCVUtils.extractImageByContour(image: image, receiptContour: contour)
-                if returnProcessingImages { processingImages.append(extractedImage) }
-                return ReceiptDetectResult(result: extractedImage, processingImages: processingImages)
+                if returnImagesInProcess { imagesInProcess.append(extractedImage) }
+                return ReceiptDetectResult(processedImage: extractedImage, imagesInProcess: imagesInProcess)
             }
         }
         
-        let resultByReceiptEdgesConvexHull = ReceiptContourDetectorByReceiptEdges.detect(image: image, convexHull: false, returnProcessingImages: returnProcessingImages)
-        if returnProcessingImages { processingImages.append(contentsOf: resultByReceiptEdgesConvexHull.processingImages) }
+        let resultByReceiptEdgesConvexHull = ReceiptContourDetectorByReceiptEdges.detect(image: image, convexHull: true, returnImagesInProcess: returnImagesInProcess)
+        if returnImagesInProcess { imagesInProcess.append(contentsOf: resultByReceiptEdgesConvexHull.imagesInProcess) }
         print("***** contour1 exists: \(resultByReceiptEdgesConvexHull.contour != nil)")
         if let contour = resultByReceiptEdgesConvexHull.contour {
             let contourArea = OpenCVUtils.contourArea(contour)
             print("***** contourArea1: \(contourArea)")
             if contourArea > contourAreaThreshold {
                 let extractedImage = OpenCVUtils.extractImageByContour(image: image, receiptContour: contour)
-                if returnProcessingImages { processingImages.append(extractedImage) }
-                return ReceiptDetectResult(result: extractedImage, processingImages: processingImages)
+                if returnImagesInProcess { imagesInProcess.append(extractedImage) }
+                return ReceiptDetectResult(processedImage: extractedImage, imagesInProcess: imagesInProcess)
             }
         }
         
-        return ReceiptDetectResult(result: nil, processingImages: processingImages)
+        return ReceiptDetectResult(processedImage: nil, imagesInProcess: imagesInProcess)
     }
 }
 
 class ReceiptContourDetectorByReceiptEdges {
-    static func detect(image: UIImage, convexHull: Bool, returnProcessingImages: Bool) -> ContourDetectResult {
-        var processingImages: [UIImage] = []
+    static func detect(image: UIImage, convexHull: Bool, returnImagesInProcess: Bool) -> ContourDetectResult {
+        var imagesInProcess: [UIImage] = []
         
         let original = Mat(uiImage: image)
         let imageMat = Mat()
@@ -93,15 +93,15 @@ class ReceiptContourDetectorByReceiptEdges {
         Imgproc.cvtColor(src: imageMat, dst: imageMat, code: .COLOR_BGR2GRAY)
         
         Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 5, height: 5), sigmaX: 0) // ノイズの除去
-        if returnProcessingImages { processingImages.append(imageMat.toUIImage()) }
+        if returnImagesInProcess { imagesInProcess.append(imageMat.toUIImage()) }
         
         let kernelForDilation = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 9, height: 9))
         Imgproc.dilate(src: imageMat, dst: imageMat, kernel: kernelForDilation)
-        if returnProcessingImages { processingImages.append(imageMat.toUIImage()) }
+        if returnImagesInProcess { imagesInProcess.append(imageMat.toUIImage()) }
         
         let edgesMat = Mat()
         Imgproc.Canny(image: imageMat, edges: edgesMat, threshold1: 100, threshold2: 200, apertureSize: 3)
-        if returnProcessingImages { processingImages.append(edgesMat.toUIImage()) }
+        if returnImagesInProcess { imagesInProcess.append(edgesMat.toUIImage()) }
         
         let contours: NSMutableArray = []
         let hierarchy = Mat()
@@ -112,7 +112,7 @@ class ReceiptContourDetectorByReceiptEdges {
         
         let sortedContourArray = contourArray.sorted(by: { OpenCVUtils.contourArea($0) > OpenCVUtils.contourArea($1) })
         var largestContours: [[Point2i]] = Array(sortedContourArray.prefix(10))
-        if returnProcessingImages { processingImages.append(OpenCVUtils.imageWithContours(image: original, contours: largestContours, contourScale: 1.0 / resizeRatio)) }
+        if returnImagesInProcess { imagesInProcess.append(OpenCVUtils.imageWithContours(image: original, contours: largestContours, contourScale: 1.0 / resizeRatio)) }
         
         if convexHull {
             largestContours = largestContours.map {
@@ -125,7 +125,7 @@ class ReceiptContourDetectorByReceiptEdges {
                 return convexHullAppliedLargestContour
             }
             
-            if returnProcessingImages { processingImages.append(OpenCVUtils.imageWithContours(image: original, contours: largestContours, contourScale: 1.0 / resizeRatio)) }
+            if returnImagesInProcess { imagesInProcess.append(OpenCVUtils.imageWithContours(image: original, contours: largestContours, contourScale: 1.0 / resizeRatio)) }
         }
         
         let receiptContour: [Point2i]? = OpenCVUtils.getFirst4CornerContour(contours: largestContours)
@@ -133,13 +133,13 @@ class ReceiptContourDetectorByReceiptEdges {
             x: Int32(Double($0.x) * (1.0 / resizeRatio)),
             y: Int32(Double($0.y) * (1.0 / resizeRatio))
         ) }
-        return ContourDetectResult(contour: sizeRestoredReceiptContour, processingImages: processingImages)
+        return ContourDetectResult(contour: sizeRestoredReceiptContour, imagesInProcess: imagesInProcess)
     }
 }
 
 class ReceiptContourDetectorByContent {
-    static func detect(image: UIImage, returnProcessingImages: Bool) -> ContourDetectResult {
-        var processingImages: [UIImage] = []
+    static func detect(image: UIImage, returnImagesInProcess: Bool) -> ContourDetectResult {
+        var imagesInProcess: [UIImage] = []
         
         let original = Mat(uiImage: image)
         let imageMat = Mat()
@@ -151,15 +151,15 @@ class ReceiptContourDetectorByContent {
         Imgproc.cvtColor(src: imageMat, dst: imageMat, code: .COLOR_BGR2GRAY)
         
         Imgproc.GaussianBlur(src: imageMat, dst: imageMat, ksize: Size2i(width: 25, height: 25), sigmaX: 0) // 可能な限りノイズを除去。かつ文字を残す(存在するのがわかる程度)。
-        if returnProcessingImages { processingImages.append(imageMat.toUIImage()) }
+        if returnImagesInProcess { imagesInProcess.append(imageMat.toUIImage()) }
         
         // 影 削除
         Imgproc.adaptiveThreshold(src: imageMat, dst: imageMat, maxValue: 255, adaptiveMethod: .ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType: .THRESH_BINARY, blockSize: 11, C: 2)
-        if returnProcessingImages { processingImages.append(imageMat.toUIImage()) }
+        if returnImagesInProcess { imagesInProcess.append(imageMat.toUIImage()) }
         
         let kernelForErosion = Imgproc.getStructuringElement(shape: MorphShapes.MORPH_RECT, ksize: Size2i(width: 61, height: 61))
         Imgproc.erode(src: imageMat, dst: imageMat, kernel: kernelForErosion)
-        if returnProcessingImages { processingImages.append(imageMat.toUIImage()) }
+        if returnImagesInProcess { imagesInProcess.append(imageMat.toUIImage()) }
         
         Core.bitwise_not(src: imageMat, dst: imageMat) // findContoursのため反転。
         
@@ -173,7 +173,7 @@ class ReceiptContourDetectorByContent {
         let sortedContourArray = contourArray.sorted(by: { OpenCVUtils.contourArea($0) > OpenCVUtils.contourArea($1) })
         let largestContours: [[Point2i]] = Array(sortedContourArray.prefix(10))
         
-        if returnProcessingImages { processingImages.append(OpenCVUtils.imageWithContours(image: original, contours: largestContours, contourScale: 1.0 / resizeRatio)) }
+        if returnImagesInProcess { imagesInProcess.append(OpenCVUtils.imageWithContours(image: original, contours: largestContours, contourScale: 1.0 / resizeRatio)) }
     
         let convexHullAppliedLargestContours = largestContours.map {
             let indicesOfPointsWhichComposeHull = IntVector()
@@ -185,14 +185,14 @@ class ReceiptContourDetectorByContent {
             return convexHullAppliedLargestContours
         }
         
-        if returnProcessingImages { processingImages.append(OpenCVUtils.imageWithContours(image: original, contours: convexHullAppliedLargestContours, contourScale: 1.0 / resizeRatio)) }
+        if returnImagesInProcess { imagesInProcess.append(OpenCVUtils.imageWithContours(image: original, contours: convexHullAppliedLargestContours, contourScale: 1.0 / resizeRatio)) }
         
         let receiptContour: [Point2i]? = OpenCVUtils.getFirst4CornerContour(contours: convexHullAppliedLargestContours)
         let sizeRestoredReceiptContour = receiptContour?.map { Point2i(
             x: Int32(Double($0.x) * (1.0 / resizeRatio)),
             y: Int32(Double($0.y) * (1.0 / resizeRatio))
         ) }
-        return ContourDetectResult(contour: sizeRestoredReceiptContour, processingImages: processingImages)
+        return ContourDetectResult(contour: sizeRestoredReceiptContour, imagesInProcess: imagesInProcess)
     }
 }
 

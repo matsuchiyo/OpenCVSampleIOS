@@ -20,7 +20,7 @@ struct ContentView: View {
         }
         .padding()
          */
-        List(ReceiptDetector.detect(image: UIImage(named: "receipt_with_white_background")!, returnProcessingImages: true).processingImages, id: \.self) { item in
+        List(ReceiptDetector.detect(image: UIImage(named: "receipt_with_white_background")!, returnImagesInProcess: true).imagesInProcess, id: \.self) { item in
             Image(uiImage: item)
                 .resizable()
                 .scaledToFit()
